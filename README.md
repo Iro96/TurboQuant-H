@@ -9,6 +9,14 @@ TurboQuant-H is a research-oriented benchmark harness for experimenting with hie
 - Separate CLI, reporting, benchmark flow, and compression internals.
 - Preserve the old `turboquant_h_smollm_benchmark.py` entrypoint for convenience.
 
+## New Contributor Docs
+
+Start with the guides in [`docs/`](./docs/README.md):
+
+- [`docs/project-map.md`](./docs/project-map.md)
+- [`docs/runtime-flow.md`](./docs/runtime-flow.md)
+- [`docs/compression-guide.md`](./docs/compression-guide.md)
+
 ## Project Layout
 
 ```text
