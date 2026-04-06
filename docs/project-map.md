@@ -10,11 +10,15 @@ TurboQuant-H is a research benchmark harness for testing hierarchical KV-cache c
 
 ```text
 TurboQuant-H/
+|-- README.md
+|-- pyproject.toml
+|-- turboquant_h_smollm_benchmark.py
 |-- docs/
-|   |-- README.md
+|   |-- compression-guide.md
 |   |-- project-map.md
 |   |-- runtime-flow.md
-|   `-- compression-guide.md
+|   |-- TurboQuant-H_paper_draft.md
+|   `-- README.md
 |-- src/
 |   `-- turboquant_h/
 |       |-- __init__.py
@@ -31,14 +35,12 @@ TurboQuant-H/
 |           |-- packing.py
 |           |-- quantization.py
 |           `-- rotation.py
-|-- tests/
-|   |-- __init__.py
-|   |-- test_config.py
-|   `-- test_packing.py
-|-- README.md
-|-- pyproject.toml
-|-- TurboQuant-H_paper_draft.md
-`-- turboquant_h_smollm_benchmark.py
+`-- tests/
+    |-- __init__.py
+    |-- test_cache.py
+    |-- test_benchmark.py
+    |-- test_config.py
+    `-- test_packing.py
 ```
 
 ## What Each Top-Level Part Means

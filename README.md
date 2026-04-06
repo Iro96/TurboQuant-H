@@ -17,7 +17,6 @@ TurboQuant-H/
 |-- README.md
 |-- pyproject.toml
 |-- turboquant_h_smollm_benchmark.py
-|-- TurboQuant-H_paper_draft.md
 |-- docs/
 |   |-- compression-guide.md
 |   |-- project-map.md
@@ -42,6 +41,8 @@ TurboQuant-H/
 |           `-- rotation.py
 `-- tests/
     |-- __init__.py
+    |-- test_cache.py
+    |-- test_benchmark.py
     |-- test_config.py
     `-- test_packing.py
 ```
