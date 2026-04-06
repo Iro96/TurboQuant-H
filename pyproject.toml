@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "turboquant-h"
+version = "0.1.0"
+description = "A research benchmark harness for TurboQuant-H KV-cache compression experiments."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "torch",
+  "transformers",
+]
+
+[project.scripts]
+turboquant-h-benchmark = "turboquant_h.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/turboquant_h"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
