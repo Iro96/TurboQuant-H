@@ -1,13 +1,6 @@
 # TurboQuant-H
 
-TurboQuant-H is a research-oriented benchmark harness for experimenting with hierarchical KV-cache compression on Hugging Face causal language models. This refactor turns the original single-file prototype into a small Python project with clearer module boundaries, a reusable CLI, and lightweight tests.
-
-## Project Goals
-
-- Keep the original benchmark behavior intact.
-- Make the compression pipeline easier to read and extend.
-- Separate CLI, reporting, benchmark flow, and compression internals.
-- Preserve the old `turboquant_h_smollm_benchmark.py` entrypoint for convenience.
+TurboQuant-H is a research-oriented benchmark harness for experimenting with hierarchical KV-cache compression. A stronger hybrid design that keeps the mathematical core of TurboQuant. This algorithm uses data-oblivious, two-stage vector quantization scheme for large language model key–value (KV) cache compression, combining random rotation plus scalar quantization with a 1-bit Quantized Johnson–Lindenstrauss (QJL) residual to preserve both mean-squared error (MSE) and inner-product fidelity.
 
 ## New Contributor Docs
 
@@ -25,6 +18,12 @@ TurboQuant-H/
 |-- pyproject.toml
 |-- turboquant_h_smollm_benchmark.py
 |-- TurboQuant-H_paper_draft.md
+|-- docs/
+|   |-- compression-guide.md
+|   |-- project-map.md
+|   |-- runtime-flow.md
+|   |-- TurboQuant-H_paper_draft.md
+|   `-- README.md
 |-- src/
 |   `-- turboquant_h/
 |       |-- __init__.py
