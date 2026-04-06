@@ -17,7 +17,6 @@ TurboQuant-H/
 |   |-- compression-guide.md
 |   |-- project-map.md
 |   |-- runtime-flow.md
-|   |-- TurboQuant-H_paper_draft.md
 |   `-- README.md
 |-- src/
 |   `-- turboquant_h/
