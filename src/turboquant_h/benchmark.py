@@ -13,6 +13,27 @@ from .compression.cache import compress_past_key_values, decompress_past_key_val
 from .config import BenchmarkResult, LatencyStats, RuntimeConfig, TurboQuantHConfig
 
 
+def _move_inputs_to_device(model_inputs: Any, device: torch.device) -> Any:
+    if hasattr(model_inputs, "to"):
+        return model_inputs.to(device)
+    return {name: value.to(device) for name, value in model_inputs.items()}
+
+
+def _prepare_model_inputs(tokenizer: Any, prompt: str, device: torch.device) -> Any:
+    chat_template = getattr(tokenizer, "chat_template", None)
+    if chat_template:
+        messages = [{"role": "user", "content": prompt}]
+        model_inputs = tokenizer.apply_chat_template(
+            messages,
+            add_generation_prompt=True,
+            return_tensors="pt",
+            return_dict=True,
+        )
+    else:
+        model_inputs = tokenizer(prompt, return_tensors="pt")
+    return _move_inputs_to_device(model_inputs, device)
+
+
 def select_device(force_cpu: bool) -> torch.device:
     return torch.device("cpu" if force_cpu or not torch.cuda.is_available() else "cuda")
 
@@ -38,7 +59,7 @@ def _sample_next_token(next_logits: torch.Tensor, cfg: TurboQuantHConfig) -> tor
     probs = torch.softmax(logits, dim=-1)
     sorted_probs, sorted_idx = torch.sort(probs, descending=True)
     cumulative = torch.cumsum(sorted_probs, dim=-1)
-    mask = cumulative <= cfg.top_p
+    mask = (cumulative - sorted_probs) <= cfg.top_p
     mask[..., 0] = True
     filtered_probs = torch.where(mask, sorted_probs, torch.zeros_like(sorted_probs))
     filtered_probs = filtered_probs / filtered_probs.sum(dim=-1, keepdim=True).clamp(min=1e-8)
@@ -60,17 +81,11 @@ def generate_with_compressed_cache(
 
     latency = LatencyStats()
 
-    if hasattr(tokenizer, "apply_chat_template"):
-        messages = [{"role": "user", "content": prompt}]
-        input_text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    else:
-        input_text = prompt
-
     use_direct_attention = cfg.use_direct_compressed_attention and enable_compressed_attention(model)
     if cfg.resolved_correction_type("k") == "qjl" and not use_direct_attention:
         raise ValueError("QJL key correction requires direct compressed attention.")
 
-    inputs = tokenizer(input_text, return_tensors="pt").to(device)
+    inputs = _prepare_model_inputs(tokenizer, prompt, device)
     start_time = time.perf_counter()
     out = model(**inputs, use_cache=True, return_dict=True)
     latency.prefill_s += time.perf_counter() - start_time

@@ -67,11 +67,12 @@ class CompressedBlock:
             work = apply_correction(work, self.correction)
         return self._apply_retain_overlay(work, device=device, rotated=True)
 
-    def materialize(self, device: torch.device) -> torch.Tensor:
+    def materialize(self, device: torch.device, dtype: torch.dtype = torch.float32) -> torch.Tensor:
         work = dequantize_tensor(self.quant, device=device)
         work = apply_correction(work, self.correction)
         block = inverse_rotation(work, self.rotation)
-        return self._apply_retain_overlay(block, device=device, rotated=False)
+        block = self._apply_retain_overlay(block, device=device, rotated=False)
+        return block.to(dtype=dtype)
 
     def select_batch(self, beam_idx: torch.LongTensor) -> None:
         select_quantized_batch(self.quant, beam_idx)
@@ -191,20 +192,21 @@ class CompressedSegment:
         self.recent_values = strip_empty_tokens(self.recent_values)
         self._sync_shape()
 
-    def materialize(self, device: torch.device) -> torch.Tensor:
+    def materialize(self, device: torch.device, dtype: Optional[torch.dtype] = None) -> torch.Tensor:
+        target_dtype = self.storage_dtype if dtype is None else dtype
         pieces: list[torch.Tensor] = []
         for block in self.old_blocks:
-            pieces.append(block.materialize(device=device))
+            pieces.append(block.materialize(device=device, dtype=target_dtype))
         if self.pending_old_values is not None:
-            pieces.append(self.pending_old_values.to(device=device, dtype=torch.float32))
+            pieces.append(self.pending_old_values.to(device=device, dtype=target_dtype))
         if self.recent_values is not None:
-            pieces.append(self.recent_values.to(device=device, dtype=torch.float32))
+            pieces.append(self.recent_values.to(device=device, dtype=target_dtype))
 
         if pieces:
             return torch.cat(pieces, dim=2)
 
         batch, heads, _, dim = self.original_shape
-        return torch.empty((batch, heads, 0, dim), device=device, dtype=torch.float32)
+        return torch.empty((batch, heads, 0, dim), device=device, dtype=target_dtype)
 
     def storage_bits(self) -> int:
         bits = sum(block.storage_bits() for block in self.old_blocks)
@@ -267,8 +269,12 @@ def compress_segment(x: torch.Tensor, cfg: TurboQuantHConfig, seed_base: int, te
     return segment
 
 
-def decompress_segment(seg: CompressedSegment, device: torch.device) -> torch.Tensor:
-    return seg.materialize(device=device)
+def decompress_segment(
+    seg: CompressedSegment,
+    device: torch.device,
+    dtype: Optional[torch.dtype] = None,
+) -> torch.Tensor:
+    return seg.materialize(device=device, dtype=dtype)
 
 
 class CompressedCacheLayer:

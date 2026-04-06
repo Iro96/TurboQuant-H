@@ -105,7 +105,7 @@ def compressed_eager_attention_forward(
             )
             if score_correction is not None:
                 logits = logits + score_correction
-            value_states = value_piece.materialize(device=device)
+            value_states = value_piece.materialize(device=device, dtype=torch.float32)
         else:
             key_states = key_piece.to(device=device, dtype=torch.float32)
             value_states = value_piece.to(device=device, dtype=torch.float32)
@@ -213,3 +213,4 @@ def enable_compressed_attention(model: Any) -> bool:
 
     model._turboquant_h_compressed_attention_enabled = patched_count > 0
     return patched_count > 0
+
