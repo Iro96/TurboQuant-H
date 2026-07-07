@@ -1,5 +1,8 @@
 # TurboQuant-H
 
+[![Tests](https://github.com/Iro96/TurboQuant-H/actions/workflows/python-package.yml/badge.svg)](https://github.com/Iro96/TurboQuant-H/actions/workflows/python-package.yml)
+![Status]( https://img.shields.io/badge/Status-not_a_product-orange)
+
 TurboQuant-H is a research-oriented benchmark harness for experimenting with hierarchical KV-cache compression. A stronger hybrid design that keeps the mathematical core of TurboQuant. This algorithm uses data-oblivious, two-stage vector quantization scheme for large language model key–value (KV) cache compression, combining random rotation plus scalar quantization with a 1-bit Quantized Johnson–Lindenstrauss (QJL) residual to preserve both mean-squared error (MSE) and inner-product fidelity.
 
 ## New Contributor Docs
